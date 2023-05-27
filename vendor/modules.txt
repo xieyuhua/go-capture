@@ -1,0 +1,35 @@
+# github.com/google/gopacket v1.1.19
+## explicit
+github.com/google/gopacket
+github.com/google/gopacket/layers
+github.com/google/gopacket/pcap
+github.com/google/gopacket/pcapgo
+# github.com/gorilla/websocket v1.4.2
+## explicit
+github.com/gorilla/websocket
+# github.com/jonboulle/clockwork v0.4.0
+## explicit
+# github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+## explicit
+github.com/lestrrat-go/file-rotatelogs
+github.com/lestrrat-go/file-rotatelogs/internal/option
+# github.com/lestrrat-go/strftime v1.0.6
+## explicit
+github.com/lestrrat-go/strftime
+github.com/lestrrat-go/strftime/internal/errors
+# github.com/oschwald/geoip2-golang v1.5.0
+## explicit
+github.com/oschwald/geoip2-golang
+# github.com/oschwald/maxminddb-golang v1.8.0
+github.com/oschwald/maxminddb-golang
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
+# github.com/sirupsen/logrus v1.9.2
+## explicit
+github.com/sirupsen/logrus
+# golang.org/x/net v0.0.0-20190620200207-3b0461eec859
+golang.org/x/net/bpf
+# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+golang.org/x/sys/windows
