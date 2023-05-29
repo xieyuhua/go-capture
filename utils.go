@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+// 	"fmt"
 	"runtime"
 	"sort"
 )
@@ -32,15 +33,38 @@ func clearScreen() {
 	}
 }
 
-func sortIPs(bandwidthMap map[string]*IPStruct) PairList {
+
+func sortIPs(bandwidthMap map[string]*IPStruct, sortvale int) PairList {
 	pl := make(PairList, len(bandwidthMap))
 	i := 0
 	for k, v := range bandwidthMap {
+	   // fmt.Printf("%v,", v.OutBytes)
+// 		pl[v.OutBytes] = Pair{k, v}
 		pl[i] = Pair{k, v}
 		i++
 	}
+// 	sort.Sort(sort.Reverse(pl))
+	//排序
+	switch sortvale {
+	    case 1: 
+            sort.Slice(pl, func(i, j int) bool {
+                return pl[i].Value.OutBytes > pl[j].Value.OutBytes
+            })
+	    break
+	    case 2: 
+            sort.Slice(pl, func(i, j int) bool {
+                return pl[i].Value.InBytes > pl[j].Value.InBytes
+            })
+	    break
+	    case 3: 
+            sort.Slice(pl, func(i, j int) bool {
+                return pl[i].Value.TotalBytes > pl[j].Value.TotalBytes
+            })
+	    break
+	    default:
+	    sort.Sort(sort.Reverse(pl))
+	}
 	
-	sort.Sort(sort.Reverse(pl))
 	// sort.Sort(pl)
 	return pl
 }

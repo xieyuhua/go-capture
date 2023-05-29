@@ -96,8 +96,8 @@ func setOption(option *Option) {
 	handleErr(err, "非法输入")
 	option.deviceName = devices[selectIndex].Name
 	option.flushInterval = flushInterval
-	clearScreen()
-	fmt.Println("开始进行抓包")
+// 	clearScreen()
+// 	fmt.Println("开始进行抓包")
 }
 
 // 抓包并记录
@@ -127,11 +127,19 @@ func capturePackets(bandwidthMap map[string]*IPStruct, option Option, bandwidthD
 	foundLayerTypes := []gopacket.LayerType{}
 	
 	var ports bool
+	fmt.Printf("统计是端口号、IP流量？")
 	fmt.Printf("请输入 true 端口号、false IP流量：")
 	if _, err = fmt.Scanln(&ports); err != nil {
 		fmt.Printf("输入信息有误，统计是端口号、IP流量")
 	}
 	
+	var sortvale int
+	fmt.Printf("统计流量排序？")
+	fmt.Printf("请选择 1、OutBytes 2、InBytes 3、TotalBytes：")
+	if _, err = fmt.Scanln(&sortvale); err != nil {
+		fmt.Printf("1、OutBytes 2、InBytes 3、TotalBytes")
+	}
+	fmt.Println("开始进行抓包")
 	
 	for packet := range packetSource.Packets() {
 		_ = parser.DecodeLayers(packet.Data(), &foundLayerTypes)
@@ -223,7 +231,7 @@ func capturePackets(bandwidthMap map[string]*IPStruct, option Option, bandwidthD
 			fmt.Printf("\r[%d/%d]", packetCount, flushInterval)
 			// 每flushInterval个包打印一次统计
 			if packetCount >= flushInterval {
-				bandwidthData := analyse(bandwidthMap, "city", bandwidthDataChan, geoDB)
+				bandwidthData := analyse(bandwidthMap, "city", bandwidthDataChan, geoDB, sortvale)
 				printStatistic(bandwidthData.BandwidthStatisticStr)
 				// 传输给web服务器
 				bandwidthDataChan <- bandwidthData
@@ -253,12 +261,13 @@ func dataTransfer(byteCount int) string {
 }
 
 // 生成统计信息
-func analyse(bandwidthMap map[string]*IPStruct, geoType string, bandwidthDataChan chan BandwidthData, geoDB *geoip2.Reader) BandwidthData {
+func analyse(bandwidthMap map[string]*IPStruct, geoType string, bandwidthDataChan chan BandwidthData, geoDB *geoip2.Reader, sortvale int) BandwidthData {
 	var bandwidthData BandwidthData
 	var drawBuffer bytes.Buffer
 	drawBuffer.WriteString(fmt.Sprintf("记录IP数: %d", len(bandwidthMap)))
 	// 通过Slice对Map进行排序
-	bandwidthList := sortIPs(bandwidthMap)
+	bandwidthList := sortIPs(bandwidthMap, sortvale)
+	
 	// bandwidthListChan <- bandwidthList
 	// listLen := len(bandwidthList)
 	for index, ips := range bandwidthList {
