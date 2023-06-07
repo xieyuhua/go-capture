@@ -6,6 +6,7 @@ type IPStruct struct {
 	InBytes    int       `json:"inbytes"`
 	OutBytes   int       `json:"outbytes"`
 	TotalBytes int       `json:"totalbytes"`
+	Num        int       `json:"num"`
 	Country    string    `json:"country"`
 	City       string    `json:"city"`
 	Longitude  float64   `json:"longitude"`

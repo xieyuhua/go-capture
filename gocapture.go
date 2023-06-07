@@ -178,50 +178,54 @@ func capturePackets(bandwidthMap map[string]*IPStruct, option Option, bandwidthD
     			// 讲抓到的包存到ip->map中，或者更新已有的记录 + SrcPort
     			if ipBandwithInfo, ok := bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()+fmt.Sprintf(":%d", tcpLayer.SrcPort)]; ok {
     				// 已经有记录时
+    				ipBandwithInfo.Num += 1
     				ipBandwithInfo.OutBytes += packet.Metadata().Length
     				ipBandwithInfo.TotalBytes = ipBandwithInfo.InBytes + ipBandwithInfo.OutBytes
     				ipBandwithInfo.LastActive = packet.Metadata().Timestamp
     				// pushIPInfo = *ipBandwithInfo
     			} else {
     				// 还没有对应ip的记录时
-    				bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()+fmt.Sprintf(":%d", tcpLayer.SrcPort)] = &IPStruct{OutBytes: packet.Metadata().Length, InBytes: 0, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
+    				bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()+fmt.Sprintf(":%d", tcpLayer.SrcPort)] = &IPStruct{Num:1,OutBytes: packet.Metadata().Length, InBytes: 0, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
     			}
     			// 然后是 dst部分 + DstPort
     			if ipBandwithInfo, exist := bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()+fmt.Sprintf(":%d", tcpLayer.DstPort)]; exist {
     				// 已经有记录时
+    				ipBandwithInfo.Num += 1
     				ipBandwithInfo.InBytes += packet.Metadata().Length
     				ipBandwithInfo.TotalBytes = ipBandwithInfo.InBytes + ipBandwithInfo.OutBytes
     				ipBandwithInfo.LastActive = packet.Metadata().Timestamp
     				// pushIPInfo = *ipBandwithInfo
     			} else {
     				// 还没有对应ip的记录时
-    				 bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()+fmt.Sprintf(":%d", tcpLayer.DstPort)] = &IPStruct{OutBytes: 0, InBytes: packet.Metadata().Length, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
+    				 bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()+fmt.Sprintf(":%d", tcpLayer.DstPort)] = &IPStruct{Num:1,OutBytes: 0, InBytes: packet.Metadata().Length, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
     				// pushIPInfo = *bandwidthMap[packet.NetworkLayer().NetworkFlow().Dst().String()]
     			}
             }else{
     			// 讲抓到的包存到ip->map中，或者更新已有的记录
     			if ipBandwithInfo, ok := bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()]; ok {
     				// 已经有记录时
+    				ipBandwithInfo.Num += 1
     				ipBandwithInfo.OutBytes += packet.Metadata().Length
     				ipBandwithInfo.TotalBytes = ipBandwithInfo.InBytes + ipBandwithInfo.OutBytes
     				ipBandwithInfo.LastActive = packet.Metadata().Timestamp
     				// pushIPInfo = *ipBandwithInfo
     			} else {
     				// 还没有对应ip的记录时
-    				bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()] = &IPStruct{OutBytes: packet.Metadata().Length, InBytes: 0, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
+    				bandwidthMap[networkLayerPacket.NetworkFlow().Src().String()] = &IPStruct{Num:1,OutBytes: packet.Metadata().Length, InBytes: 0, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
     				// pushIPInfo = *bandwidthMap[packet.NetworkLayer().NetworkFlow().Src().String()]
     			} 
     			
     			// 然后是 dst部分
     			if ipBandwithInfo, exist := bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()]; exist {
     				// 已经有记录时
+    				ipBandwithInfo.Num += 1
     				ipBandwithInfo.InBytes += packet.Metadata().Length
     				ipBandwithInfo.TotalBytes = ipBandwithInfo.InBytes + ipBandwithInfo.OutBytes
     				ipBandwithInfo.LastActive = packet.Metadata().Timestamp
     				// pushIPInfo = *ipBandwithInfo
     			} else {
     				// 还没有对应ip的记录时
-    				 bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()] = &IPStruct{OutBytes: 0, InBytes: packet.Metadata().Length, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
+    				 bandwidthMap[networkLayerPacket.NetworkFlow().Dst().String()] = &IPStruct{Num:1,OutBytes: 0, InBytes: packet.Metadata().Length, TotalBytes: packet.Metadata().Length, LastActive: packet.Metadata().Timestamp}
     				// pushIPInfo = *bandwidthMap[packet.NetworkLayer().NetworkFlow().Dst().String()]
     			}  
             }
@@ -305,9 +309,9 @@ func analyse(bandwidthMap map[string]*IPStruct, geoType string, bandwidthDataCha
 			}
 		}
 		if index == 0 {
-			drawBuffer.WriteString(fmt.Sprintf("\nip: %-16s output: %-6s input: %-6s total: %-7s location: %-8s(Local)", ips.Key, dataTransfer(ips.Value.OutBytes), dataTransfer(ips.Value.InBytes), dataTransfer(ips.Value.TotalBytes), IPLocation))
+			drawBuffer.WriteString(fmt.Sprintf("\nip: %-16s num: %-6d output: %-6s input: %-6s total: %-7s location: %-8s(Local)", ips.Key, (ips.Value.Num), dataTransfer(ips.Value.OutBytes), dataTransfer(ips.Value.InBytes), dataTransfer(ips.Value.TotalBytes), IPLocation))
 		} else {
-			drawBuffer.WriteString(fmt.Sprintf("\nip: %-16s output: %-6s input: %-6s total: %-7s location: %-8s", ips.Key, dataTransfer(ips.Value.OutBytes), dataTransfer(ips.Value.InBytes), dataTransfer(ips.Value.TotalBytes), IPLocation))
+			drawBuffer.WriteString(fmt.Sprintf("\nip: %-16s num: %-6d output: %-6s input: %-6s total: %-7s location: %-8s", ips.Key, (ips.Value.Num), dataTransfer(ips.Value.OutBytes), dataTransfer(ips.Value.InBytes), dataTransfer(ips.Value.TotalBytes), IPLocation))
 		}
 	}
 	bandwidthData.BandwidthStatisticStr = drawBuffer.String()
