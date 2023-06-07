@@ -126,9 +126,16 @@ func capturePackets(bandwidthMap map[string]*IPStruct, option Option, bandwidthD
 	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &ethLayer, &tcpLayer, &udpLayer, &ip4Layer, &ip6Layer)
 	foundLayerTypes := []gopacket.LayerType{}
 	
+	var iflogs bool
+	fmt.Printf("输出日志文件 default false：")
+	if _, err = fmt.Scanln(&iflogs); err != nil {
+		fmt.Printf("是否输出日志文件?")
+	}
+	
+	
 	var ports bool
 	fmt.Printf("统计是端口号、IP流量？")
-	fmt.Printf("请输入 true 端口号、false IP流量：")
+	fmt.Printf("请输入 true、端口号，false、IP流量：")
 	if _, err = fmt.Scanln(&ports); err != nil {
 		fmt.Printf("输入信息有误，统计是端口号、IP流量")
 	}
@@ -219,10 +226,14 @@ func capturePackets(bandwidthMap map[string]*IPStruct, option Option, bandwidthD
     			}  
             }
             
+            //统计日志文件
+            if iflogs {
+    			ip := fmt.Sprintf("%s:%d => %s:%d ;", networkLayerPacket.NetworkFlow().Src().String(), tcpLayer.SrcPort, networkLayerPacket.NetworkFlow().Dst().String(), tcpLayer.DstPort)
+    		    logs.Info(ip)
+    			
+            }
 			
-			ip := fmt.Sprintf("%s:%d => %s:%d ;", networkLayerPacket.NetworkFlow().Src().String(), tcpLayer.SrcPort, networkLayerPacket.NetworkFlow().Dst().String(), tcpLayer.DstPort)
-		    logs.Info(ip)
-			
+
 			
 			// [临时放置]推送给ws频道
 			// wsDataChan <- pushIPInfo
